@@ -1,0 +1,178 @@
+# Добавляем в проект библиотеку с телеграм ботом
+import telebot
+import random
+
+# Создаем переменную в которой будет жить бот
+# С помощью этой переменной мы будет управлять ботом
+bot = telebot.TeleBot("5491063670:AAFi9Ka06wHoQkXhMn5vz_jW3gltzXYAn78")
+
+# Аннотация позволяет определить какую на какую команду
+# будет реагировать функция
+@bot.message_handler(commands=["start"])
+# Функция. Аргумент - объект с сообщением message;
+# В каждой функции, которая обрабатывает сообщение
+# принимается один аргумент - данные о сообщении
+def send_hello(message):
+    # reply_to - ответить на сообщение
+    bot.reply_to(message, "Привет! Добро пожаловать в бот SmartPark!\n Список команд:\n"
+                          "1)/quiz  Игра в викторину\n "
+                          "2)/add_ad добавить рекламу"
+                          "3)/view_ads посмотреть рекламы"
+                          "4)/donate пожертвование на нужды парка"
+                          "5)/Add_a_review оставить отзыв"
+                          "6)/Show_all_reviews показать все отзывы"
+                          "7)/every_day показать все мероприятия"
+                          "8)/history историческая справка о парке")
+
+
+@bot.message_handler(commands=["every_day"])
+# Функция. Аргумент - объект с сообщением message;
+# В каждой функции, которая обрабатывает сообщение
+# принимается один аргумент - данные о сообщении
+def every_day(message):
+    # reply_to - ответить на сообщение
+    bot.reply_to(message, """
+    1)ень атракционов
+    2)день цветов
+    3)день еды и напитков
+    4)день береги природу
+    5) выходной
+    6)день труда
+    7)день огородников
+    8)день пинсионеров
+    9)день крестьян
+    10)день сладкого
+    """)
+
+spisok = []
+people = []
+@bot.message_handler(commands=["add_ad"])
+def krash(message):
+    people.append(message.chat.id)
+    bot.reply_to(message, "Здравствуйте пришлите текст рекламы")
+
+@bot.message_handler(func=lambda message: people.count(message.chat.id) > 0)
+def brash(message):
+    spisok.append(message.text)
+    people.remove(message.chat.id)
+    bot.reply_to(message, "Ваша реклама добавлена")
+
+@bot.message_handler(commands=["view_ads"])
+def rash(message):
+    bot.reply_to(message,"Вот вся реклама")
+    i = 0
+    while i < len(spisok):
+        bot.reply_to(message, spisok[i])
+        i = i + 1
+
+gamers = []
+player_question = {}
+points = {
+    "1234213":{"balls": 0, "question_value":0},
+    "Данил":10
+}
+#points["Глеб"] = points['Глеб'] +1
+#points[] = 0
+
+questions = {
+    "В каком районе находится парк Юрия Гагарина?":{
+        "В Московском": 1, "В Центральном": 0, "В Ленинградском":0, "В Октябрьском":0},
+    "В каком году был построен парк?":{"1953": 1, "1961": 0, "1949":  0, "1956": 0},
+    "Что установлено на верхушке арки на главном входе в парк?"
+    :{"Планета": 1, "Звезда": 0, "Ракета": 0, "Статуя Юрия Гагарина": 0},
+     "В виде чего сделан памятный знак Гагарина?":{"Валуна": 1, "Звезды": 0, "Планеты": 0, "Мемореала": 0},
+    "Что ты первое видешь зайдя в парк?"
+    :{"2 автомата с едой и напитками": 1, "Маленький магазин": 0, "Деревья": 0, "Шаурмечная": 0},
+    "Как начинался текст на памятнике Гагарина?":{"Слава ветеранам": 1, "Слава Юрию Гагарину": 0, "Слава Советскому Союзу": 0, "Слава Украине": 0},
+  "Кем был Юрий Гагарин по национальности?":{"Русским": 1, "Украинцем": 0, "Поляком": 0, "Белоруссом": 0},
+    "Какие плакаты висели на входе к площадке для дресировки собак?":{"О помощи собак во время Великой Отечественой войны": 1, "О правилах поведения": 0,
+    "О правильной дресировке собак": 0, "О Юрие Гагарине": 0},
+    "В каком году человек полетел в космос?":{"1964": 1, "1967": 0, "1959": 0, "1962": 0},
+    "Кем был Юрий Гагарин по профессии?":{"Космонавтом": 1, "Пожарным": 0, "Миллиционером": 0, "Военным": 1},}
+
+
+
+
+
+@bot.message_handler(commands=["quiz"])
+def send_quiz(message):
+    markup = telebot.types.ReplyKeyboardMarkup(row_width=1)
+    i1 = telebot.types.KeyboardButton('Да')
+    i2 = telebot.types.KeyboardButton('Нет')
+    markup.add(i1, i2)
+    gamers.append(message.chat.id)
+    bot.send_message(message.chat.id, "Добро пожаловать в викторину! "
+                          "Я задам тебе 5 вопросов и ты будешь должен на них ответить, в конце я посчитаю баллы и оценю твои знания, готов?", reply_markup=markup)
+
+@bot.message_handler(func=lambda message: message.text == 'Нет' and gamers.count(message.chat.id)>0)
+def quiz_cancel(message):
+    bot.send_message(message.chat.id, "Хорошо, когда будешь готов напиши команду /quiz.")
+    gamers.remove(message.chat.id)
+
+@bot.message_handler(func=lambda message: message.text == 'Да' and gamers.count(message.chat.id)>0)
+def quiz_accept(message):
+
+    randomise = random.choice(list(questions.keys()))
+    print(randomise)
+    markup_quiz = telebot.types.ReplyKeyboardMarkup(row_width=2, one_time_keyboard = True)
+    answers = []
+    for key in questions[randomise]:
+        answer = telebot.types.KeyboardButton(key)
+        answers.append(answer)
+    random.shuffle(answers)
+    for an in answers:
+        markup_quiz.add(an)
+
+    player_question[message.chat.id] = randomise
+    if  message.chat.id not in points.keys() or points[message.chat.id] == None:
+        points[message.chat.id] = {
+            "balls": 0, "question_value": 0
+        }
+
+    bot.send_message(message.chat.id, randomise, reply_markup=markup_quiz)
+
+@bot.message_handler(func=lambda message: gamers.count(message.chat.id)>0 and player_question[message.chat.id] != None)
+def answer(message):
+    if questions[player_question[message.chat.id]][message.text] == 1:
+        points[message.chat.id]["balls"] +=1
+    points[message.chat.id]["question_value"] +=1
+    if points[message.chat.id]["question_value"] ==5:
+        bot.send_message(message.chat.id, "Поздравляю! Ты набрал "+str(points[message.chat.id]["balls"])+ " баллов из 5!")
+        gamers.remove(message.chat.id)
+        points[message.chat.id]=None
+        player_question[message.chat.id]=None
+    else:
+        quiz_accept(message)
+
+otzivi = []
+peoples = []
+
+@bot.message_handler(commands=["Add_a_review"])
+def honey(message):
+    peoples.append(message.chat.id)
+    bot.reply_to(message, "Пришлите ваш отзыв")
+
+@bot.message_handler(func=lambda message: peoples.count(message.chat.id) > 0)
+def repl(message):
+    otzivi.append(message.text)
+    peoples.remove(message.chat.id)
+    bot.reply_to(message, "Ваш отзыв добавлен")
+
+@bot.message_handler(commands=["Show_all_reviews"])
+def lesh(message):
+    bot.reply_to(message, "Вот все отзывы")
+    g = 0
+    while g < len(otzivi):
+        bot.reply_to(message, otzivi[g])
+        g = g + 1
+
+@bot.message_handler(commands=["start"])
+def send_hello(message):
+    bot.reply_to(message, "Привет, добро пожаловать в SmartPark!")
+
+@bot.message_handler(commands=["donate"])
+def send_donate(message):
+    bot.send_message(message.chat.id, "Заранее спасибо за пожертвование! Вот ссылка для перевода:https://www.tinkoff.ru/cf/18Jv1cXOuwF")
+
+# Команда позволяет боту слушать сообщения
+bot.infinity_polling()
