@@ -1,0 +1,24 @@
+import telebot
+
+bot = telebot.TeleBot("5491063670:AAFi9Ka06wHoQkXhMn5vz_jW3gltzXYAn78")
+
+@bot.message_handler(commands=["start"])
+def send_hello(message):
+    bot.reply_to(message, "Привет, добро пожаловать в SmartPark!")
+@bot.message_handler(commands=["donate"])
+def send_donate(message):
+    bot.send_message(message.chat.id, "Заранее спасибо за пожертвование! Вот ссылка для перевода:https://www.tinkoff.ru/cf/18Jv1cXOuwF")
+    # markup=telebot.types.ReplyKeyboardMarkup(row_width=2)
+    # exit=telebot.types.KeyboardButton("Назад")
+    # b1=telebot.types.KeyboardButton("50 руб.")
+    # b2=telebot.types.KeyboardButton("100 руб.")
+    # b3=telebot.types.KeyboardButton("250 руб.")
+    # b4=telebot.types.KeyboardButton("500 руб.")
+    # b5=telebot.types.KeyboardButton("1000 руб.")
+    # markup.add(exit, b1, b2, b3, b4, b5)
+    # bot.send_message(message.chat.id, "Нажми на количество которое хочешь пожертвовать, либо напиши свою сумму.", reply_markup=markup)
+
+#@bot.message_handler(func=lambda message: message.text == '50. р')
+
+
+bot.infinity_polling()
